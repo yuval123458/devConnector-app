@@ -1,0 +1,34 @@
+{
+  "name": "linkedin-mern-project",
+  "version": "1.0.0",
+  "description": "",
+  "main": "server.js",
+  "scripts": {
+    "start": "echo \"Error: no test specified\" && exit 1",
+    "server": "nodemon server"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/yuval123458/linkedin-mern-app.git"
+  },
+  "author": "yuval",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/yuval123458/linkedin-mern-app/issues"
+  },
+  "homepage": "https://github.com/yuval123458/linkedin-mern-app#readme",
+  "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "config": "^3.3.7",
+    "express": "^4.18.1",
+    "express-validator": "^6.14.2",
+    "gravatar": "^1.8.2",
+    "jsonwebtoken": "^8.5.1",
+    "mongoose": "^6.4.0",
+    "request": "^2.88.2"
+  },
+  "devDependencies": {
+    "concurrently": "^7.2.2",
+    "nodemon": "^2.0.16"
+  }
+}
