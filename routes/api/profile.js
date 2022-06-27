@@ -4,6 +4,8 @@ const router = express.Router();
 const Profile = require("../../models/ProfileModel");
 const User = require("../../models/User");
 const { check, validationResult } = require("express-validator");
+const request = require("request");
+const config = require("config");
 
 // GET specific user profile
 router.get("/me", checkAuth, async (req, res) => {
@@ -299,6 +301,34 @@ router.delete("/education/:edcId", checkAuth, async (req, res) => {
       msg: "could delete education",
     });
   }
+});
+
+//   /api/profile/github/:username
+//   GET user reops from github
+//   access: public
+
+router.get("/github/:username", async (req, res) => {
+  const opt = {
+    uri: `https://api.github.com/users/${
+      req.params.username
+    }/repos?per_page=5&sort=created:asc&client_id=${config.get(
+      "githubclientId"
+    )}&client_secret=${config.get("githubclientSecret")}`,
+    method: "GET",
+    headers: {
+      "user-agent": "node.js",
+    },
+  };
+
+  request(opt, (error, response, body) => {
+    if (error) console.log(error);
+
+    if (response.statusCode !== 200) {
+      return res.status(404).json({ msg: "could not find user" });
+    }
+
+    res.json(JSON.parse(body));
+  });
 });
 
 module.exports = router;

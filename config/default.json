@@ -1,4 +1,6 @@
 {
   "mongoURI": "mongodb+srv://yuval:212387@cluster0.vcqjd.mongodb.net/?retryWrites=true&w=majority",
-  "JWT_SECRET": "secret"
+  "JWT_SECRET": "secret",
+  "githubclientId": "Iv1.53f44a936ab5caa4",
+  "githubclientSecret": "3d9c7e1257e8917d7a7509644c5755f1cd9b15dc"
 }
