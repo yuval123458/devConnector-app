@@ -24,11 +24,14 @@ router.get("/", checkAuth, async (req, res) => {
 // api/auth
 router.post(
   "/",
-  [check("email").isEmail(), check("password").isLength({ min: 5 })],
+  [
+    check("email", "please enter a valid email").isEmail(),
+    check("password", "please enter a valid password").isLength({ min: 5 }),
+  ],
   async (req, res) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      return res.status(400).json({ errors: validationResult(req).array() });
+      return res.status(400).json({ errors: errors.array() });
     }
     const { email, password } = req.body;
 
@@ -57,10 +60,9 @@ router.post(
             throw new Error(err.message);
           }
           console.log(token);
+          res.send({ token: token });
         }
       );
-
-      res.send("user logged in!");
     } catch (err) {
       res.status(500).json({ message: "server error" });
     }

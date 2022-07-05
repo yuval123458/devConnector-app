@@ -13,14 +13,17 @@ const router = express.Router();
 router.post(
   "/",
   [
-    check("name").not().isEmpty(),
-    check("email").isEmail(),
-    check("password").isLength({ min: 5 }),
+    check("name", "name must not be empty").not().isEmpty(),
+    check("email", "please enter a valid email address").isEmail(),
+    check(
+      "password",
+      "password's length must be greater than 5 characters"
+    ).isLength({ min: 5 }),
   ],
   async (req, res) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      return res.status(400).json({ errors: "must fill required fields!" });
+      return res.status(400).json({ errors: errors.array() });
     }
     const { name, email, password } = req.body;
 
@@ -62,11 +65,9 @@ router.post(
           if (err) {
             throw new Error(err.message);
           }
-          console.log(token);
+          res.json({ token: token });
         }
       );
-
-      res.send("user registered into database");
     } catch (err) {
       res.status(500).json({ message: "server error" });
     }

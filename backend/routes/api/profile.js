@@ -7,20 +7,19 @@ const { check, validationResult } = require("express-validator");
 const request = require("request");
 const config = require("config");
 
-// GET specific user profile
+//    GET new profile for logged user
+//    access is private
+//    api/profile/me
 router.get("/me", checkAuth, async (req, res) => {
   try {
-    const profile = await Profile.findOne({ user: req.userData }).populate(
-      "user"
-    );
+    console.log("GET request");
+    const profile = await Profile.findOne({ user: req.userData });
 
     if (!profile) {
-      return res
-        .status(500)
-        .json({ msg: "could not find user in profile model" });
+      throw new Error({ msg: "could not find user in profile model" });
     }
 
-    res.json({ profile: profile });
+    res.json(profile);
   } catch (err) {
     return res
       .status(500)
@@ -28,19 +27,24 @@ router.get("/me", checkAuth, async (req, res) => {
   }
 });
 
-// post new profile for logged users
-//access is private
-// api/profile
+//    post new profile for logged users
+//    access is private
+//    api/profile
 router.post(
   "/",
-  [checkAuth, check("status").not().isEmpty(), check("skills").not().isEmpty()],
+  [
+    checkAuth,
+    check("status", "status must be filled").not().isEmpty(),
+    check("skills", "skills must be filled").not().isEmpty(),
+  ],
   async (req, res) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
       return res.status(401).json({
-        msg: "required fields could not be empty, please try again!",
+        errors: errors.array(),
       });
     }
+    console.log("request to post");
 
     const {
       company,
@@ -61,29 +65,50 @@ router.post(
 
     requiredFields.user = req.userData;
     console.log(req.userData);
-    if (company) requiredFields.company = company;
 
-    if (website) requiredFields.website = website;
+    company
+      ? (requiredFields.company = company)
+      : (requiredFields.comapny = null);
 
-    if (location) requiredFields.location = location;
+    website
+      ? (requiredFields.website = website)
+      : (requiredFields.website = null);
 
-    if (bio) requiredFields.bio = bio;
+    location
+      ? (requiredFields.location = location)
+      : (requiredFields.location = null);
 
-    if (githubusername) requiredFields.githubusername = githubusername;
+    bio ? (requiredFields.bio = bio) : (requiredFields.bio = null);
+
+    githubusername
+      ? (requiredFields.githubusername = githubusername)
+      : (requiredFields.githubusername = null);
 
     requiredFields.status = status;
-    requiredFields.skills = skills.split(",").map((skill) => skill.trim());
 
     requiredFields.social = {};
-    if (youtube) requiredFields.social.youtube = youtube;
 
-    if (linkedin) requiredFields.social.linkedin = linkedin;
+    youtube
+      ? (requiredFields.social.youtube = youtube)
+      : (requiredFields.social.youtube = null);
 
-    if (facebook) requiredFields.social.facebook = facebook;
+    linkedin
+      ? (requiredFields.social.linkedin = linkedin)
+      : (requiredFields.social.linkedin = null);
 
-    if (twitter) requiredFields.social.twitter = twitter;
+    facebook
+      ? (requiredFields.social.facebook = facebook)
+      : (requiredFields.social.facebook = null);
 
-    if (instagram) requiredFields.social.instagram = instagram;
+    twitter
+      ? (requiredFields.social.twitter = twitter)
+      : (requiredFields.social.twitter = null);
+
+    instagram
+      ? (requiredFields.social.instagram = instagram)
+      : (requiredFields.social.instagram = null);
+
+    requiredFields.skills = skills.split(",").map((skill) => skill.trim());
 
     let newProfile;
     let user;
@@ -136,9 +161,9 @@ router.get("/", async (req, res) => {
   }
 });
 
-//  api/profile/user/:userId
-//  GET specific user profile by user Id
-//  access: public
+//    api/profile/user/:userId
+//    GET specific user profile by user Id
+//    access: public
 
 router.get("/user/:userId", async (req, res) => {
   const { userId } = req.params;
@@ -153,9 +178,9 @@ router.get("/user/:userId", async (req, res) => {
   }
 });
 
-//  api/profile
-//  DELETE user and his profile & posts
-//  access: private
+//    api/profile
+//    DELETE user and his profile & posts
+//    access: private
 
 router.delete("/", checkAuth, async (req, res) => {
   try {
@@ -216,7 +241,7 @@ router.put(
   }
 );
 
-//    /api/profile/experience/:expId
+//    api/profile/experience/:expId
 //    DELETE request to delete a specific profile exp
 //    access: private
 
@@ -236,9 +261,9 @@ router.delete("/experience/:expId", checkAuth, async (req, res) => {
   }
 });
 
-//  api/profile/education
-//  PUT education in users profile
-//  access: private
+//    api/profile/education
+//    PUT education in users profile
+//    access: private
 
 router.put(
   "/education",
@@ -283,7 +308,7 @@ router.put(
   }
 );
 
-//    /api/profile/education/:edcId
+//    api/profile/education/:edcId
 //    DELETE request to delete a specific profile education
 //    access: private
 
@@ -303,7 +328,7 @@ router.delete("/education/:edcId", checkAuth, async (req, res) => {
   }
 });
 
-//   /api/profile/github/:username
+//   api/profile/github/:username
 //   GET user reops from github
 //   access: public
 

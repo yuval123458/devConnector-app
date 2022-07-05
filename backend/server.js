@@ -11,6 +11,15 @@ connectDB();
 
 app.use(express.json({ extended: false }));
 
+app.use((req, res, next) => {
+  res.header("Access-Control-Allow-Origin", "*");
+  res.header(
+    "Access-Control-Allow-Headers",
+    "Origin, x-auth-token, X-Requested-With, Content-Type, Accept"
+  );
+  next();
+});
+
 app.get("/", (req, res, next) => res.send("API running"));
 
 app.use("/api/users", usersRoute);
