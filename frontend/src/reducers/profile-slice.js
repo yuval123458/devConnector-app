@@ -1,5 +1,6 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import axios from "axios";
+import { alertActions } from "./alert-slice";
 
 const initialState = {
   profile: null,
@@ -53,13 +54,14 @@ export const createProfile = createAsyncThunk(
 
 export const addExperience = createAsyncThunk(
   "addExp",
-  async (body, { rejectWithValue }) => {
+  async (body, thunkAPI) => {
     try {
-      const response = await axios.pput(
+      const response = await axios.put(
         "http://localhost:5000/api/profile/experience",
         body,
         {
           headers: {
+            "Content-Type": "application/json",
             "x-auth-token": localStorage.getItem("token"),
           },
         }
@@ -69,15 +71,22 @@ export const addExperience = createAsyncThunk(
 
       return response.data;
     } catch (err) {
+      console.log(err);
       const errors = err.response.data.errors;
-      return rejectWithValue(errors);
+      console.log(errors);
+      errors.map((err) =>
+        thunkAPI.dispatch(
+          alertActions.setAlert({ msg: err.msg, alertType: "danger" })
+        )
+      );
+      return thunkAPI.rejectWithValue(errors);
     }
   }
 );
 
 export const addEducation = createAsyncThunk(
   "addEdc",
-  async (body, { rejectWithValue }) => {
+  async (body, thunkAPI) => {
     try {
       const response = await axios.put(
         "http://localhost:5000/api/profile/education",
@@ -94,7 +103,14 @@ export const addEducation = createAsyncThunk(
       return response.data;
     } catch (err) {
       const errors = err.response.data.errors;
-      return rejectWithValue(errors);
+
+      errors.map((err) =>
+        thunkAPI.dispatch(
+          alertActions.setAlert({ msg: err.msg, alertType: "danger" })
+        )
+      );
+
+      return thunkAPI.rejectWithValue(errors);
     }
   }
 );
@@ -167,16 +183,16 @@ const profileSlice = createSlice({
 
     //   addEducation
     [addEducation.fulfilled]: (state, action) => {
-      console.log("exp fulfilled");
+      console.log("edc fulfilled");
       state.loading = false;
       state.profile.education = action.payload;
       state.errors = null;
     },
     [addEducation.pending]: (state, action) => {
-      console.log("exp pending");
+      console.log("edc pending");
     },
     [addEducation.rejected]: (state, action) => {
-      console.log("exp rejected");
+      console.log("edc rejected");
       state.loading = false;
       const errs = action.payload.map((err) => err.msg);
       state.errors = errs.map((err) => err);

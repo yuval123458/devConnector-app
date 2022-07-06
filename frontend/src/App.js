@@ -13,6 +13,8 @@ import { useSelector } from "react-redux";
 import ProtectedRoute from "./components/layout/ProtectedRoute";
 import CreateProfile from "./components/profile-forms/CreateProfile";
 import EditProfile from "./components/profile-forms/EditProfile";
+import AddExperience from "./components/profile-forms/AddExperience";
+import AddEducation from "./components/profile-forms/AddEducation";
 
 const App = () => {
   const { setAuthUser } = useHttp();
@@ -41,6 +43,12 @@ const App = () => {
           </Route>
           <Route element={<ProtectedRoute to={"/login"} isAuth={isAuth} />}>
             <Route path="/edit-profile" element={<EditProfile />} />
+          </Route>
+          <Route element={<ProtectedRoute to={"/login"} isAuth={isAuth} />}>
+            <Route path="/add-experience" element={<AddExperience />} />
+          </Route>
+          <Route element={<ProtectedRoute to={"/login"} isAuth={isAuth} />}>
+            <Route path="/add-education" element={<AddEducation />} />
           </Route>
           <Route path="*" element={<Landing />} />
         </Routes>
