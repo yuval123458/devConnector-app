@@ -32,10 +32,6 @@ const AddEducation = () => {
   const changeHandler = (event) => {
     const { name, value } = event.target;
 
-    if (name === "current") {
-      toggleDisabled((prev) => !prev);
-    }
-
     setFormData((prevValue) => ({
       ...prevValue,
       [name]: value,
@@ -92,7 +88,7 @@ const AddEducation = () => {
           <input
             onChange={changeHandler}
             type="text"
-            placeholder="Field of study"
+            placeholder="* Field of study"
             name="fieldofstudy"
             value={fieldofstudy}
           />
@@ -109,13 +105,19 @@ const AddEducation = () => {
         <div className="form-group">
           <p>
             <input
-              onChange={changeHandler}
+              onChange={() => {
+                toggleDisabled((prev) => !prev);
+                setFormData((prev) => ({
+                  ...prev,
+                  current: !current,
+                }));
+              }}
               type="checkbox"
               checked={current}
               name="current"
               value={current}
             />{" "}
-            Current Job
+            Current
           </p>
         </div>
         <div className="form-group">

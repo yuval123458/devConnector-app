@@ -4,6 +4,7 @@ import { alertActions } from "./alert-slice";
 
 const initialState = {
   profile: null,
+  status: null,
   profiles: [],
   repos: [],
   loading: true,
@@ -46,7 +47,8 @@ export const createProfile = createAsyncThunk(
 
       return response.data;
     } catch (err) {
-      const errors = err.response.data.errors;
+      const errors = err.response.data.msg;
+      console.log(errors);
       return rejectWithValue(errors);
     }
   }
@@ -115,6 +117,145 @@ export const addEducation = createAsyncThunk(
   }
 );
 
+export const deleteEdc = createAsyncThunk("deleteEdc", async (id, thunkAPI) => {
+  try {
+    const response = await axios.delete(
+      `http://localhost:5000/api/profile/education/${id}`,
+      {
+        headers: {
+          "x-auth-token": localStorage.getItem("token"),
+        },
+      }
+    );
+
+    console.log(response.data);
+
+    thunkAPI.dispatch(
+      alertActions.setAlert({ msg: "education removed", alertType: "success" })
+    );
+
+    return response.data;
+  } catch (err) {
+    const error = err.response.data;
+    thunkAPI.dispatch(
+      alertActions.setAlert({ msg: error.msg, alertType: "danger" })
+    );
+    return thunkAPI.rejectWithValue(error);
+  }
+});
+
+export const deleteExp = createAsyncThunk("deleteExp", async (id, thunkAPI) => {
+  try {
+    const response = await axios.delete(
+      `http://localhost:5000/api/profile/experience/${id}`,
+      {
+        headers: {
+          "x-auth-token": localStorage.getItem("token"),
+        },
+      }
+    );
+
+    console.log(response.data);
+
+    thunkAPI.dispatch(
+      alertActions.setAlert({ msg: "experience removed", alertType: "success" })
+    );
+
+    return response.data;
+  } catch (err) {
+    const error = err.response.data;
+    thunkAPI.dispatch(
+      alertActions.setAlert({ msg: error.msg, alertType: "danger" })
+    );
+    return thunkAPI.rejectWithValue(error);
+  }
+});
+
+export const deleteAcc = createAsyncThunk("deleteAcc", async (thunkAPI) => {
+  try {
+    const response = await axios.delete("http://localhost:5000/api/profile", {
+      headers: {
+        "x-auth-token": localStorage.getItem("token"),
+      },
+    });
+
+    console.log(response.data);
+
+    thunkAPI.dispatch(
+      alertActions.setAlert({ msg: "Account removed", alertType: "success" })
+    );
+
+    return response.data;
+  } catch (err) {
+    const error = err.response.data;
+    thunkAPI.dispatch(
+      alertActions.setAlert({ msg: error.msg, alertType: "danger" })
+    );
+    return thunkAPI.rejectWithValue(error);
+  }
+});
+
+export const getAllProfiles = createAsyncThunk(
+  "getAllProfiles",
+  async (thunkAPI) => {
+    try {
+      const response = await axios.get("http://localhost:5000/api/profile");
+
+      console.log(response.data);
+
+      return response.data;
+    } catch (err) {
+      const error = err.response.data;
+      thunkAPI.dispatch(
+        alertActions.setAlert({ msg: error.msg, alertType: "danger" })
+      );
+      return thunkAPI.rejectWithValue(error);
+    }
+  }
+);
+
+export const getProfileById = createAsyncThunk(
+  "getProfileById",
+  async (userId, thunkAPI) => {
+    try {
+      const response = await axios.get(
+        `http://localhost:5000/api/profile/user/${userId}`
+      );
+
+      console.log(response.data);
+
+      return response.data;
+    } catch (err) {
+      const error = err.response.data;
+      thunkAPI.dispatch(
+        alertActions.setAlert({ msg: error.msg, alertType: "danger" })
+      );
+      return thunkAPI.rejectWithValue(error);
+    }
+  }
+);
+
+export const getGithubRepos = createAsyncThunk(
+  "getGithubRepos",
+  async (username, thunkAPI) => {
+    try {
+      const response = await axios.get(
+        `http://localhost:5000/api/profile/github/${username}`
+      );
+
+      console.log(response.data);
+
+      return response.data;
+    } catch (err) {
+      const error = err.response.data;
+      thunkAPI.dispatch(
+        alertActions.setAlert({ msg: error.msg, alertType: "danger" })
+      );
+      return thunkAPI.rejectWithValue(error);
+    }
+  }
+);
+
 const profileSlice = createSlice({
   name: "profile",
   initialState,
@@ -149,7 +290,7 @@ const profileSlice = createSlice({
     [createProfile.fulfilled]: (state, action) => {
       console.log("POST fulfilled");
       state.loading = false;
-      state.profile = action.payload;
+      state.profile = action.payload.Profile;
       state.errors = null;
     },
     [createProfile.pending]: (state, action) => {
@@ -166,9 +307,9 @@ const profileSlice = createSlice({
     //   addExperience
     [addExperience.fulfilled]: (state, action) => {
       console.log("exp fulfilled");
-      state.loading = false;
-      state.profile.experience = action.payload;
+      state.profile = action.payload;
       state.errors = null;
+      state.loading = false;
     },
     [addExperience.pending]: (state, action) => {
       console.log("exp pending");
@@ -184,9 +325,9 @@ const profileSlice = createSlice({
     //   addEducation
     [addEducation.fulfilled]: (state, action) => {
       console.log("edc fulfilled");
-      state.loading = false;
-      state.profile.education = action.payload;
+      state.profile = action.payload;
       state.errors = null;
+      state.loading = false;
     },
     [addEducation.pending]: (state, action) => {
       console.log("edc pending");
@@ -196,6 +337,107 @@ const profileSlice = createSlice({
       state.loading = false;
       const errs = action.payload.map((err) => err.msg);
       state.errors = errs.map((err) => err);
+      console.log(state.errors);
+    },
+
+    //   deleteExperience
+    [deleteExp.fulfilled]: (state, action) => {
+      console.log(" delete exp fulfilled");
+      state.profile = action.payload.profile;
+      state.errors = null;
+      state.loading = false;
+    },
+    [deleteExp.pending]: (state, action) => {
+      console.log("delete exp pending");
+      // state.loading = true;
+    },
+    [deleteExp.rejected]: (state, action) => {
+      console.log("delete exp rejected");
+      state.loading = false;
+      state.errors = action.payload;
+      console.log(state.errors);
+    },
+
+    //   deleteEducation
+    [deleteEdc.fulfilled]: (state, action) => {
+      console.log(" delete edc fulfilled");
+      state.profile = action.payload.profile;
+      state.errors = null;
+      state.loading = false;
+    },
+    [deleteEdc.pending]: (state, action) => {
+      console.log("delete edc pending");
+    },
+    [deleteEdc.rejected]: (state, action) => {
+      console.log("delete edc rejected");
+      state.loading = false;
+      state.errors = action.payload;
+      console.log(state.errors);
+    },
+
+    //   deleteACC
+    [deleteAcc.fulfilled]: (state, action) => {
+      console.log(" delete Acc fulfilled");
+      state.profile = null;
+      state.errors = null;
+      state.loading = false;
+    },
+    [deleteAcc.pending]: (state, action) => {
+      console.log("delete Acc pending");
+    },
+    [deleteAcc.rejected]: (state, action) => {
+      console.log("delete Acc rejected");
+      state.loading = false;
+      state.errors = action.payload;
+      console.log(state.errors);
+    },
+
+    //   getAllProfiles
+    [getAllProfiles.fulfilled]: (state, action) => {
+      console.log(" getAllProfiles fulfilled");
+      state.profiles = action.payload;
+      state.loading = false;
+    },
+    [getAllProfiles.pending]: (state, action) => {
+      console.log("getAllProfiles pending");
+    },
+    [getAllProfiles.rejected]: (state, action) => {
+      console.log("getAllProfiles rejected");
+      state.loading = false;
+      state.errors = action.payload;
+      console.log(state.errors);
+    },
+
+    //   getProfileById
+    [getProfileById.fulfilled]: (state, action) => {
+      console.log(" getProfileById fulfilled");
+      state.profile = action.payload.profile;
+      state.loading = false;
+    },
+    [getProfileById.pending]: (state, action) => {
+      console.log("getProfileById pending");
+    },
+    [getProfileById.rejected]: (state, action) => {
+      console.log("getProfileById rejected");
+      state.loading = false;
+      state.errors = action.payload;
+      console.log(state.errors);
+    },
+
+    //   getGithubrepos
+    [getGithubRepos.fulfilled]: (state, action) => {
+      console.log(" getGithubRepos fulfilled");
+      state.repos = action.payload;
+      console.log(state.repos);
+      state.loading = false;
+    },
+    [getGithubRepos.pending]: (state, action) => {
+      console.log("getGithubRepos pending");
+    },
+    [getGithubRepos.rejected]: (state, action) => {
+      console.log("getAGithubRepos rejected");
+      state.loading = false;
+      state.errors = action.payload;
       console.log(state.errors);
     },
   },

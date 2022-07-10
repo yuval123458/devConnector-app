@@ -9,6 +9,21 @@ import { useEffect } from "react";
 import { useRef } from "react";
 import { alertActions } from "../../reducers/alert-slice";
 
+const initialState = {
+  company: "",
+  website: "",
+  location: "",
+  status: "",
+  skills: "",
+  githubusername: "",
+  bio: "",
+  twitter: "",
+  facebook: "",
+  linkedIn: "",
+  youtube: "",
+  instagram: "",
+};
+
 const EditProfile = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
@@ -20,20 +35,7 @@ const EditProfile = () => {
   console.log(errors);
   console.log("loading: " + loading);
   let profile;
-  const [profileForm, setProfileForm] = useState({
-    company: "",
-    website: "",
-    location: "",
-    status: "",
-    skills: "",
-    bio: "",
-    githubusername: "",
-    youtube: "",
-    linkedIn: "",
-    facebook: "",
-    twitter: "",
-    instagram: "",
-  });
+  const [profileForm, setProfileForm] = useState(initialState);
   const [media, setMedia] = useState(false);
   const {
     company,
@@ -49,6 +51,8 @@ const EditProfile = () => {
     twitter,
     instagram,
   } = profileForm;
+
+  console.log(profileForm);
 
   const changeHandler = (event) => {
     const { name, value } = event.target;
@@ -97,34 +101,35 @@ const EditProfile = () => {
       console.log(profile);
       profileRef.current = profile;
 
-      setProfileForm({
-        company: loading || !profile.company ? "" : profile.company,
-        website: loading || !profile.website ? "" : profile.website,
-        location: loading || !profile.location ? "" : profile.location,
-        status: loading || !profile.status ? "" : profile.status,
-        skills: loading || !profile.skills ? "" : profile.skills,
-        githubusername:
-          loading || !profile.githubusername ? "" : profile.githubusername,
-        bio: loading || !profile.bio ? "" : profile.bio,
-        twitter: loading || !profile.social ? "" : profile.social.twitter,
-        facebook: loading || !profile.social ? "" : profile.social.facebook,
-        youtube: loading || !profile.social ? "" : profile.social.youtube,
-        linkedIn: loading || !profile.social ? "" : profile.social.linkedIn,
-        instagram: loading || !profile.social ? "" : profile.social.instagram,
-      });
+      const formData = { ...initialState };
+
+      for (const key in profile) {
+        if (key in formData) {
+          formData[key] = profile[key];
+          console.log(profile[key]);
+        }
+      }
+
+      for (const key in profile.social) {
+        if (key in formData) {
+          formData[key] = profile.social[key];
+        }
+      }
+
+      setProfileForm(formData);
+
+      console.log("use effect");
     };
 
     setProfile();
-
-    console.log("use effect");
-  }, [loading]);
+  }, []);
 
   return (
     <div>
       {!profileRef.current && <p>loading...</p>}
       {profileRef.current !== null && (
         <Fragment>
-          <h1 className="large text-primary">Create Your Profile</h1>
+          <h1 className="large text-primary">Update Your Profile</h1>
           <p className="lead">
             <i className="fas fa-user"></i> Let's get some information to make
             your profile stand out

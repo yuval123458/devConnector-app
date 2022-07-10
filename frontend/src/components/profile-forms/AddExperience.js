@@ -15,7 +15,7 @@ const AddExperience = () => {
   const navigate = useNavigate();
   errorRef.current = errors;
   const [formData, setFormData] = useState({
-    comapny: "",
+    company: "",
     title: "",
     location: "",
     from: "",
@@ -30,10 +30,6 @@ const AddExperience = () => {
 
   const changeHandler = (event) => {
     const { name, value } = event.target;
-
-    if (name === "current") {
-      toggleDisabled((prev) => !prev);
-    }
 
     setFormData((prevValue) => ({
       ...prevValue,
@@ -108,7 +104,13 @@ const AddExperience = () => {
         <div className="form-group">
           <p>
             <input
-              onChange={changeHandler}
+              onChange={() => {
+                toggleDisabled((prev) => !prev);
+                setFormData((prev) => ({
+                  ...prev,
+                  current: !current,
+                }));
+              }}
               type="checkbox"
               checked={current}
               name="current"

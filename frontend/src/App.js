@@ -15,6 +15,9 @@ import CreateProfile from "./components/profile-forms/CreateProfile";
 import EditProfile from "./components/profile-forms/EditProfile";
 import AddExperience from "./components/profile-forms/AddExperience";
 import AddEducation from "./components/profile-forms/AddEducation";
+import Profiles from "./profiles/Profiles";
+import Profile from "./components/profile/Profile";
+import Posts from "./components/posts/Posts";
 
 const App = () => {
   const { setAuthUser } = useHttp();
@@ -24,7 +27,7 @@ const App = () => {
     if (localStorage.token) {
       setAuthUser();
     }
-  }, []);
+  }, [setAuthUser]);
 
   return (
     <Fragment>
@@ -49,6 +52,11 @@ const App = () => {
           </Route>
           <Route element={<ProtectedRoute to={"/login"} isAuth={isAuth} />}>
             <Route path="/add-education" element={<AddEducation />} />
+          </Route>
+          <Route path="/profiles" element={<Profiles />} />
+          <Route path="/profile/:userId" element={<Profile />} />
+          <Route element={<ProtectedRoute to={"/login"} isAuth={isAuth} />}>
+            <Route path="/posts" element={<Posts />} />
           </Route>
           <Route path="*" element={<Landing />} />
         </Routes>

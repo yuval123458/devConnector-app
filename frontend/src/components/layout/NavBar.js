@@ -14,6 +14,12 @@ const NavBar = () => {
   const authLinks = (
     <ul>
       <li>
+        <Link to="/profiles">Developers</Link>
+      </li>
+      <li>
+        <Link to="/posts">Posts</Link>
+      </li>
+      <li>
         <Link to="/" onClick={logoutHandler}>
           <i className="fas fa-sign-out-alt"></i>
           <span className="hide-sm">Logout</span>
@@ -31,7 +37,7 @@ const NavBar = () => {
   const guestLinks = (
     <ul>
       <li>
-        <Link to="/">Developers</Link>
+        <Link to="/profiles">Developers</Link>
       </li>
       <li>
         <Link to="/register">Register</Link>

@@ -150,7 +150,7 @@ img {
 
 .alert {
   padding: 0.8rem;
-  margin: 2rem 0;
+  margin: 1rem 0;
   opacity: 0.9;
   background: var(--light-color);
   color: #333;
@@ -333,8 +333,11 @@ button {
 /* Landing Page */
 .landing {
   position: relative;
-  background: url("./img/showcase.jpg") no-repeat center center/cover;
+  background: url("./img/showcase.jpg");
   height: 100vh;
+}
+.disabled {
+  background: #ccc;
 }
 
 .landing-inner {
