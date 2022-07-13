@@ -6,11 +6,15 @@ export const createPost = createAsyncThunk(
   "createPost",
   async (text, thunkAPI) => {
     try {
-      const res = await axios.post("http://localhost:5000/api/posts", text, {
-        headers: {
-          "x-auth-token": localStorage.getItem("token"),
-        },
-      });
+      const res = await axios.post(
+        "http://localhost:5000/api/posts",
+        { text },
+        {
+          headers: {
+            "x-auth-token": localStorage.getItem("token"),
+          },
+        }
+      );
       thunkAPI.dispatch(
         alertActions.setAlert({
           msg: "successfully added post",
@@ -119,10 +123,145 @@ export const unlikePost = createAsyncThunk(
   }
 );
 
+export const deletePost = createAsyncThunk(
+  "deletePost",
+  async (postId, thunkAPI) => {
+    try {
+      const res = await axios.delete(
+        `http://localhost:5000/api/posts/${postId}`,
+        {
+          headers: {
+            "x-auth-token": localStorage.getItem("token"),
+          },
+        }
+      );
+
+      console.log(res.data);
+
+      thunkAPI.dispatch(
+        alertActions.setAlert({
+          msg: "post deleted successfully",
+          alertType: "success",
+        })
+      );
+
+      return postId;
+    } catch (err) {
+      const error = err.response.data;
+      console.log(error);
+
+      thunkAPI.dispatch(
+        alertActions.setAlert({ msg: error.msg, alertType: "danger" })
+      );
+
+      return thunkAPI.rejectWithValue(error);
+    }
+  }
+);
+
+export const getPost = createAsyncThunk("getPost", async (postId, thunkAPI) => {
+  try {
+    const res = await axios.get(`http://localhost:5000/api/posts/${postId}`, {
+      headers: {
+        "x-auth-token": localStorage.getItem("token"),
+      },
+    });
+
+    console.log(res.data);
+
+    return res.data;
+  } catch (err) {
+    const error = err.response.data;
+    console.log(error);
+
+    thunkAPI.dispatch(
+      alertActions.setAlert({ msg: error.msg, alertType: "danger" })
+    );
+
+    return thunkAPI.rejectWithValue(error);
+  }
+});
+
+export const addComment = createAsyncThunk(
+  "addComment",
+  async (data, thunkAPI) => {
+    try {
+      console.log(data.postId);
+      const res = await axios.put(
+        `http://localhost:5000/api/posts/comments/${data.postId}`,
+        { text: data.comment },
+        {
+          headers: {
+            "x-auth-token": localStorage.getItem("token"),
+          },
+        }
+      );
+
+      console.log(res.data);
+
+      thunkAPI.dispatch(
+        alertActions.setAlert({
+          msg: "Comment Added successfully",
+          alertType: "success",
+        })
+      );
+
+      return res.data;
+    } catch (err) {
+      const error = err.response.data;
+      console.log(error);
+
+      thunkAPI.dispatch(
+        alertActions.setAlert({ msg: error.msg, alertType: "danger" })
+      );
+
+      return thunkAPI.rejectWithValue(error);
+    }
+  }
+);
+
+export const deleteComment = createAsyncThunk(
+  "deleteComment",
+  async (body, thunkAPI) => {
+    try {
+      console.log(body);
+      const res = await axios.delete(
+        `http://localhost:5000/api/posts/comments/${body.postId}/${body.commentId}`,
+        {
+          headers: {
+            "x-auth-token": localStorage.getItem("token"),
+          },
+        }
+      );
+
+      console.log(res.data);
+
+      thunkAPI.dispatch(
+        alertActions.setAlert({
+          msg: "Comment Deleted successfully",
+          alertType: "success",
+        })
+      );
+
+      return body.commentId;
+    } catch (err) {
+      const error = err.response.data;
+      console.log(error);
+
+      thunkAPI.dispatch(
+        alertActions.setAlert({ msg: error.msg, alertType: "danger" })
+      );
+
+      return thunkAPI.rejectWithValue(error);
+    }
+  }
+);
+
 const initialState = {
   posts: [],
   post: null,
   error: null,
+  loading: false,
 };
 
 const postsSlice = createSlice({
@@ -132,11 +271,13 @@ const postsSlice = createSlice({
     // createPost
     [createPost.fulfilled]: (state, action) => {
       console.log("createPost fulfilled");
-      state.post = action.payload.post;
+      state.posts.unshift(action.payload.post);
       state.error = null;
+      state.loading = false;
     },
     [createPost.pending]: (state, action) => {
       console.log("createPost pending");
+      state.loading = true;
     },
     [createPost.rejected]: (state, action) => {
       console.log("createPost rejected");
@@ -149,15 +290,18 @@ const postsSlice = createSlice({
       console.log("getPosts fulfilled");
       state.posts = action.payload.posts;
       state.error = null;
+      state.loading = false;
     },
     [getPosts.pending]: (state, action) => {
       console.log("getPosts pending");
+      state.loading = true;
     },
     [getPosts.rejected]: (state, action) => {
       console.log("getPosts rejected");
-      state.posts = null;
+      state.posts = [];
       state.error = action.payload;
       console.log(state.error);
+      state.loading = false;
     },
 
     // likePost
@@ -204,6 +348,82 @@ const postsSlice = createSlice({
       state.posts = null;
       state.error = action.payload;
       console.log(state.error);
+    },
+
+    // deletePost
+    [deletePost.fulfilled]: (state, action) => {
+      console.log("deletePost fulfilled");
+      console.log(action.payload);
+      state.posts.filter((post) => post._id !== action.payload);
+      state.error = null;
+      state.loading = false;
+    },
+    [deletePost.pending]: (state, action) => {
+      console.log("deletePost pending");
+      state.loading = true;
+    },
+    [deletePost.rejected]: (state, action) => {
+      console.log("deletePost rejected");
+      state.posts = null;
+      state.error = action.payload;
+      console.log(state.error);
+      state.loading = false;
+    },
+
+    // getPost
+    [getPost.fulfilled]: (state, action) => {
+      console.log("getPost fulfilled");
+      state.post = action.payload;
+      state.error = null;
+      state.loading = false;
+    },
+    [getPost.pending]: (state, action) => {
+      console.log("getPost pending");
+      state.loading = true;
+    },
+    [getPost.rejected]: (state, action) => {
+      console.log("getPost rejected");
+      state.error = action.payload;
+      console.log(state.error);
+      state.loading = false;
+    },
+
+    // addComment
+    [addComment.fulfilled]: (state, action) => {
+      console.log("addComment fulfilled");
+      state.post.comments = action.payload;
+      state.error = null;
+      state.loading = false;
+    },
+    [addComment.pending]: (state, action) => {
+      console.log("addComment pending");
+      state.loading = true;
+    },
+    [addComment.rejected]: (state, action) => {
+      console.log("addComment rejected");
+      state.error = action.payload;
+      console.log(state.error);
+      state.loading = false;
+    },
+
+    // deleteComment
+    [deleteComment.fulfilled]: (state, action) => {
+      console.log("deleteComment fulfilled");
+      state.post.comments = state.post.comments.filter(
+        (com) => com._id !== action.payload
+      );
+      state.error = null;
+      state.loading = false;
+    },
+    [deleteComment.pending]: (state, action) => {
+      console.log("deleteComment pending");
+      //   state.loading = true;
+    },
+    [deleteComment.rejected]: (state, action) => {
+      console.log("deleteComment rejected");
+      state.error = action.payload;
+      console.log(state.error);
+      state.loading = false;
     },
   },
 });

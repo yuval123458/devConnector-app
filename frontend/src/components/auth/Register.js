@@ -5,6 +5,7 @@ import { alertActions } from "../../reducers/alert-slice";
 import { useDispatch, useSelector } from "react-redux";
 import useHttp from "../../hooks/useHttp";
 import { useNavigate } from "react-router-dom";
+import { useEffect } from "react";
 
 const Register = () => {
   const [formData, setFormData] = useState({
@@ -41,7 +42,7 @@ const Register = () => {
         })
       );
     } else {
-      sendRequest(
+      const response = sendRequest(
         "http://localhost:5000/api/users",
         {
           name,
@@ -50,12 +51,14 @@ const Register = () => {
         },
         "post"
       );
-
-      if (isAuth) {
-        navigate("/dashboard");
-      }
     }
   };
+
+  useEffect(() => {
+    if (isAuth) {
+      navigate("/dashboard");
+    }
+  }, [isAuth]);
 
   return (
     <Fragment>

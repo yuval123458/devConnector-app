@@ -5,6 +5,8 @@ import { likePost } from "../../reducers/post-slice";
 import { unlikePost } from "../../reducers/post-slice";
 import { useState } from "react";
 
+import { Fragment } from "react";
+
 const PostItem = (props) => {
   const curUser = useSelector((state) => state.auth.user);
   const { post } = props;
@@ -36,10 +38,14 @@ const PostItem = (props) => {
     setLikeDisable((prev) => !prev);
   };
 
-  return (
+  const deleteHandler = () => {
+    props.onDelete(postId);
+  };
+
+  let Post = (
     <div className="post bg-white p-1 my-1">
       <div>
-        <Link to="/profile">
+        <Link to={`/profile/${user}`}>
           <img className="round-img" src={avatar} alt="avatar-img" />
           <h4>{name}</h4>
         </Link>
@@ -66,19 +72,25 @@ const PostItem = (props) => {
         >
           <i className="fas fa-thumbs-down"></i>
         </button>
-        <Link to={`/post/${postId}`} className="btn btn-primary">
-          Discussion
+        <Link to={`/posts/${postId}`} className="btn btn-primary">
+          Discussion{" "}
           {comments.length > 0 && (
-            <span className="comment-count">{" " + comments.length}</span>
+            <span className="comment-count"> {comments.length}</span>
           )}
         </Link>
         {curUser.user._id === user && (
-          <button type="button" className="btn btn-danger">
+          <button
+            onClick={deleteHandler}
+            type="button"
+            className="btn btn-danger"
+          >
             <i className="fas fa-times"></i>
           </button>
         )}
       </div>
     </div>
   );
+
+  return Post;
 };
 export default PostItem;

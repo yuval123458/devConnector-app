@@ -54,23 +54,11 @@ const CreateProfile = () => {
 
   const submitHandler = async (event) => {
     event.preventDefault();
-    try {
-      await dispatch(createProfile(profileForm)).unwrap();
+    // try {
+    const body = { profileForm, edit: false };
+    await dispatch(createProfile(body)).unwrap();
 
-      if (!errorRef.current) {
-        dispatch(
-          alertActions.setAlert({
-            msg: "profile created successfully",
-            alertType: "success",
-          })
-        );
-        navigate("/dashboard");
-      }
-    } catch (error) {
-      errorRef.current.map((error) =>
-        dispatch(alertActions.setAlert({ msg: error.msg, alertType: "danger" }))
-      );
-    }
+    navigate("/dashboard");
   };
 
   return (
@@ -220,8 +208,8 @@ const CreateProfile = () => {
                 value={linkedIn}
                 onChange={changeHandler}
                 type="text"
-                placeholder="Linkedin URL"
-                name="linkedin"
+                placeholder="LinkedIn URL"
+                name="linkedIn"
               />
             </div>
 

@@ -3,6 +3,7 @@ import { useDispatch } from "react-redux";
 import { useSelector } from "react-redux";
 import { useEffect } from "react";
 import { Fragment } from "react";
+import LoadingSpinner from "../layout/LoadingSpinner";
 
 const ProfileGithub = (props) => {
   const dispatch = useDispatch();
@@ -19,7 +20,7 @@ const ProfileGithub = (props) => {
   }, []);
   return (
     <Fragment>
-      {!repos && <p>loading...</p>}
+      {!repos && <LoadingSpinner />}
       {repos && (
         <div className="profile-github">
           <h2 className="text-primary my-1">

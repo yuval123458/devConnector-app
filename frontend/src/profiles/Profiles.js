@@ -3,6 +3,7 @@ import { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { getAllProfiles } from "../reducers/profile-slice";
 import ProfileItem from "./ProfileItem";
+import LoadingSpinner from "../components/layout/LoadingSpinner";
 
 const Profiles = () => {
   const profiles = useSelector((state) => state.profile.profiles);
@@ -12,11 +13,7 @@ const Profiles = () => {
 
   useEffect(() => {
     const getProfiles = async () => {
-      try {
-        await dispatch(getAllProfiles()).unwrap();
-      } catch (error) {
-        console.log(error);
-      }
+      await dispatch(getAllProfiles()).unwrap();
     };
 
     getProfiles();
@@ -24,7 +21,7 @@ const Profiles = () => {
 
   return (
     <Fragment>
-      {!profiles && <p>loading...</p>}
+      {(loading || !profiles) && <LoadingSpinner />}
       {!loading && profiles && (
         <Fragment>
           <h1 className="large text-primary">Developers</h1>

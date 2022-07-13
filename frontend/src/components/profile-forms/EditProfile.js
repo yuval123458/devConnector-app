@@ -8,6 +8,7 @@ import { getCurrentProfile } from "../../reducers/profile-slice";
 import { useEffect } from "react";
 import { useRef } from "react";
 import { alertActions } from "../../reducers/alert-slice";
+import LoadingSpinner from "../layout/LoadingSpinner";
 
 const initialState = {
   company: "",
@@ -29,7 +30,7 @@ const EditProfile = () => {
   const dispatch = useDispatch();
   const profileRef = useRef(null);
   const errorRef = useRef();
-  const loading = useSelector((state) => state.profile.loading);
+  const [loading, setLoading] = useState(true);
   const errors = useSelector((state) => state.profile.errors);
   errorRef.current = errors;
   console.log(errors);
@@ -63,36 +64,16 @@ const EditProfile = () => {
     }));
   };
 
-  const submitHandler = async (event) => {
+  const submitHandler = (event) => {
     event.preventDefault();
 
     console.log(profileForm);
 
-    try {
-      await dispatch(createProfile(profileForm)).unwrap();
+    const body = { profileForm, edit: true };
 
-      if (!errorRef.current) {
-        dispatch(
-          alertActions.setAlert({
-            msg: "profile edited successfully",
-            alertType: "success",
-          })
-        );
-        navigate("/dashboard");
-      }
-    } catch (error) {
-      console.log(errorRef.current);
-      if (errorRef.current) {
-        errorRef.current.map((error) =>
-          dispatch(
-            alertActions.setAlert({
-              msg: error,
-              alertType: "danger",
-            })
-          )
-        );
-      }
-    }
+    dispatch(createProfile(body));
+
+    navigate("/dashboard");
   };
 
   useEffect(() => {
@@ -119,6 +100,7 @@ const EditProfile = () => {
       setProfileForm(formData);
 
       console.log("use effect");
+      setLoading(false);
     };
 
     setProfile();
@@ -126,8 +108,8 @@ const EditProfile = () => {
 
   return (
     <div>
-      {!profileRef.current && <p>loading...</p>}
-      {profileRef.current !== null && (
+      {loading && <LoadingSpinner />}
+      {profile !== null && !loading && (
         <Fragment>
           <h1 className="large text-primary">Update Your Profile</h1>
           <p className="lead">
@@ -276,8 +258,8 @@ const EditProfile = () => {
                     value={linkedIn}
                     onChange={changeHandler}
                     type="text"
-                    placeholder="Linkedin URL"
-                    name="linkedin"
+                    placeholder="LinkedIn URL"
+                    name="linkedIn"
                   />
                 </div>
 

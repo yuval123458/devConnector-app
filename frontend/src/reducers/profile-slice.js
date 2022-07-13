@@ -7,7 +7,7 @@ const initialState = {
   status: null,
   profiles: [],
   repos: [],
-  loading: true,
+  loading: false,
   errors: [],
 };
 
@@ -24,18 +24,18 @@ export const getCurrentProfile = createAsyncThunk(
       return response.data;
     } catch (err) {
       console.log(err.response.data.msg);
-      throw new Error(err.response.data.msg);
+      return null;
     }
   }
 );
 
 export const createProfile = createAsyncThunk(
   "create",
-  async (body, { rejectWithValue }) => {
+  async (body, thunkAPI) => {
     try {
       const response = await axios.post(
         "http://localhost:5000/api/profile/",
-        body,
+        body.profileForm,
         {
           headers: {
             "x-auth-token": localStorage.getItem("token"),
@@ -43,13 +43,35 @@ export const createProfile = createAsyncThunk(
         }
       );
 
+      if (body.edit === true) {
+        thunkAPI.dispatch(
+          alertActions.setAlert({
+            msg: "profile edited successfully",
+            alertType: "success",
+          })
+        );
+      } else {
+        thunkAPI.dispatch(
+          alertActions.setAlert({
+            msg: "profile created successfully",
+            alertType: "success",
+          })
+        );
+      }
+
       console.log(response.data);
 
       return response.data;
     } catch (err) {
       const errors = err.response.data.msg;
       console.log(errors);
-      return rejectWithValue(errors);
+      errors.map((error) =>
+        thunkAPI.dispatch(
+          alertActions.setAlert({ msg: error.msg, alertType: "danger" })
+        )
+      );
+
+      return thunkAPI.rejectWithValue(errors);
     }
   }
 );
@@ -259,14 +281,7 @@ export const getGithubRepos = createAsyncThunk(
 const profileSlice = createSlice({
   name: "profile",
   initialState,
-  reducers: {
-    clearProfile(state, action) {
-      state.profile = null;
-      state.repos = [];
-      state.errors = {};
-      state.loading = true;
-    },
-  },
+
   extraReducers: {
     // GetCurrentProfile
     [getCurrentProfile.fulfilled]: (state, action) => {
@@ -277,10 +292,12 @@ const profileSlice = createSlice({
     },
     [getCurrentProfile.pending]: (state, action) => {
       console.log("GET pending");
+      state.loading = true;
     },
     [getCurrentProfile.rejected]: (state, action) => {
       console.log("GET rejected");
       state.loading = false;
+      state.profile = null;
       const errs = action.payload.map((err) => err.msg);
       state.errors = errs.map((err) => err);
       console.log(state.errors);
@@ -400,6 +417,7 @@ const profileSlice = createSlice({
     },
     [getAllProfiles.pending]: (state, action) => {
       console.log("getAllProfiles pending");
+      state.loading = true;
     },
     [getAllProfiles.rejected]: (state, action) => {
       console.log("getAllProfiles rejected");
@@ -416,6 +434,8 @@ const profileSlice = createSlice({
     },
     [getProfileById.pending]: (state, action) => {
       console.log("getProfileById pending");
+      state.loading = true;
+      state.profile = null;
     },
     [getProfileById.rejected]: (state, action) => {
       console.log("getProfileById rejected");

@@ -8,11 +8,15 @@ import ExpItem from "./ExpItem";
 import EdcItem from "./EdcItem";
 import ProfileTop from "./ProfileTop";
 import ProfileGithub from "./ProfileGithub";
+import LoadingSpinner from "../layout/LoadingSpinner";
+import { memo } from "react";
 
 const Profile = () => {
   const dispatch = useDispatch();
   const params = useParams();
   const profile = useSelector((state) => state.profile.profile);
+  const loading = useSelector((state) => state.profile.loading);
+  console.log("loading " + loading);
 
   const user = useSelector((state) => state.auth.user);
   console.log(profile);
@@ -27,8 +31,8 @@ const Profile = () => {
 
   return (
     <Fragment>
-      {profile === null && <p>loading...</p>}
-      {profile && user && (
+      {(profile === null || loading) && <LoadingSpinner />}
+      {profile && user && !loading && (
         <Fragment>
           <Link to="/profiles" className="btn btn-light">
             Back To Profiles
@@ -40,7 +44,7 @@ const Profile = () => {
           )}
           <div className="profile-grid my-1">
             <ProfileTop profile={profile} />
-            <ProfileAbout profile={profile} />
+            <ProfileAbout loading={loading} profile={profile} />
             <div className="profile-exp bg-white p-2">
               <h2 className="text-primary">Experience</h2>
               {profile.experience.length > 0 ? (

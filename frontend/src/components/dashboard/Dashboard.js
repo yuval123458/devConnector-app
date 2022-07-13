@@ -7,27 +7,22 @@ import { Link } from "react-router-dom";
 import DashboardActions from "./DashboardActions";
 import Experience from "./Experience";
 import Education from "./Education";
+import LoadingSpinner from "../layout/LoadingSpinner";
 
 const Dashboard = (props) => {
   const profile = useSelector((state) => state.profile.profile);
   console.log(profile);
-  // const profileRef = useRef(null);
-  // profileRef.current = profile;
   const isLoading = useSelector((state) => state.profile.loading);
   console.log("loading " + isLoading);
-  const user = useSelector((state) => state.auth.user);
+
   const dispatch = useDispatch();
 
   useEffect(() => {
     const getProfile = async () => {
-      console.log("getCurrentProfile");
       await dispatch(getCurrentProfile()).unwrap();
     };
-    try {
-      getProfile();
-    } catch (error) {
-      console.log(error.message);
-    }
+
+    getProfile();
   }, [dispatch]);
 
   const deleteHandler = async () => {
@@ -36,12 +31,12 @@ const Dashboard = (props) => {
 
   return (
     <div>
-      {isLoading && <p>loading...</p>}
+      {isLoading && <LoadingSpinner />}
       {!isLoading && profile !== null && (
         <Fragment>
           <h1 className="large text-primary"> Dashboard</h1>
           <p className="lead">
-            <i className="fas fa-user"></i> Welcome {user.user.name}
+            <i className="fas fa-user"></i> Welcome {profile.user.name}
           </p>
           <DashboardActions />
           <Experience experience={profile.experience} />
@@ -53,7 +48,7 @@ const Dashboard = (props) => {
           </div>
         </Fragment>
       )}
-      {!isLoading && !profile && (
+      {!isLoading && profile === null && (
         <Fragment>
           <p>you do not have a profile yet. Please create One</p>
           <Link to="/create-profile" className="btn btn-primary my-1">
