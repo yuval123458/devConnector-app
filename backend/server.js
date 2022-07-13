@@ -4,6 +4,7 @@ const usersRoute = require("./routes/api/users");
 const authRoute = require("./routes/api/Auth");
 const profileRoute = require("./routes/api/profile");
 const postsRoute = require("./routes/api/posts");
+const path = require("path");
 
 const app = express();
 
@@ -24,12 +25,18 @@ app.use((req, res, next) => {
   next();
 });
 
-app.get("/", (req, res, next) => res.send("API running"));
-
 app.use("/api/users", usersRoute);
 app.use("/api/posts", postsRoute);
 app.use("/api/profile", profileRoute);
 app.use("/api/auth", authRoute);
+
+if (process.env.NODE_ENV === "production") {
+  app.use(express.static(path.resolve(__dirname, "../frontend/build")));
+
+  app.get("*", (req, res) => {
+    res.sendFile(path.resolve(__dirname, "../frontend/build/index.html"));
+  });
+}
 
 const PORT = process.env.PORT || 5000;
 
