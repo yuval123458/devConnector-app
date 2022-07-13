@@ -266,7 +266,10 @@ router.delete("/experience/:expId", checkAuth, async (req, res) => {
   const { expId } = req.params;
 
   try {
-    let profile = await Profile.findOne({ user: req.userData });
+    let profile = await Profile.findOne({ user: req.userData }).populate(
+      "user",
+      ["name", "avatar"]
+    );
     profile.experience = profile.experience.filter((exp) => exp.id !== expId);
     console.log(profile.experience);
     await profile.save();
@@ -333,7 +336,10 @@ router.delete("/education/:edcId", checkAuth, async (req, res) => {
   const { edcId } = req.params;
 
   try {
-    let profile = await Profile.findOne({ user: req.userData });
+    let profile = await Profile.findOne({ user: req.userData }).populate(
+      "user",
+      ["name", "avatar"]
+    );
     profile.education = profile.education.filter((edc) => edc.id !== edcId);
     console.log(profile.experience);
     await profile.save();
