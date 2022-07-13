@@ -6,6 +6,7 @@ const bcrypt = require("bcryptjs");
 const { validationResult } = require("express-validator");
 const jwt = require("jsonwebtoken");
 const config = require("config");
+const _ = require("lodash");
 
 const router = express.Router();
 
@@ -41,7 +42,7 @@ router.post(
         d: "mm",
       });
       const newUser = new User({
-        name: name,
+        name: _.capitalize(name),
         email: email,
         password: password,
         avatar: avatar,

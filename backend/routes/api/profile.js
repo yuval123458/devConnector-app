@@ -6,6 +6,8 @@ const User = require("../../models/User");
 const { check, validationResult } = require("express-validator");
 const request = require("request");
 const config = require("config");
+const Post = require("../../models/PostsModel");
+const _ = require("lodash");
 
 //    GET new profile for logged user
 //    access is private
@@ -13,7 +15,10 @@ const config = require("config");
 router.get("/me", checkAuth, async (req, res) => {
   try {
     console.log("GET request");
-    const profile = await Profile.findOne({ user: req.userData });
+    const profile = await Profile.findOne({ user: req.userData }).populate(
+      "user",
+      ["name", "avatar"]
+    );
 
     if (!profile) {
       throw new Error({ msg: "could not find user in profile model" });
@@ -27,7 +32,7 @@ router.get("/me", checkAuth, async (req, res) => {
   }
 });
 
-//    post new profile for logged users
+//    post or update new profile for logged users
 //    access is private
 //    api/profile
 router.post(
@@ -56,7 +61,7 @@ router.post(
       githubusername,
       youtube,
       facebook,
-      linkedin,
+      linkedIn,
       instagram,
       twitter,
     } = req.body;
@@ -92,9 +97,9 @@ router.post(
       ? (requiredFields.social.youtube = youtube)
       : (requiredFields.social.youtube = null);
 
-    linkedin
-      ? (requiredFields.social.linkedin = linkedin)
-      : (requiredFields.social.linkedin = null);
+    linkedIn
+      ? (requiredFields.social.linkedIn = linkedIn)
+      : (requiredFields.social.linkedIn = null);
 
     facebook
       ? (requiredFields.social.facebook = facebook)
@@ -108,29 +113,37 @@ router.post(
       ? (requiredFields.social.instagram = instagram)
       : (requiredFields.social.instagram = null);
 
-    requiredFields.skills = skills.split(",").map((skill) => skill.trim());
-
     let newProfile;
-    let user;
-    try {
-      newProfile = await Profile.findOne({ user: req.userData });
-      if (newProfile) {
+
+    newProfile = await Profile.findOne({ user: req.userData });
+    if (newProfile) {
+      try {
+        console.log("existing profile");
+        if (_.isEqual(newProfile.skills, skills)) {
+          requiredFields.skills = newProfile.skills;
+        } else {
+          requiredFields.skills = skills
+            .split(",")
+            .map((skill) => skill.trim());
+        }
         newProfile = await Profile.findOneAndUpdate(
           { user: req.userData },
           { $set: requiredFields },
           { new: true }
         );
-        return res.json({ updatedProfile: newProfile });
+        return res.json({ Profile: newProfile });
+      } catch (err) {
+        console.log(err.message);
+        return res.status(401).json({
+          msg: "could not update and save new profile",
+        });
       }
-    } catch (err) {
-      return res.status(401).json({
-        msg: "could not update and save new profile",
-      });
     }
     try {
+      requiredFields.skills = skills.split(",").map((skill) => skill.trim());
       newProfile = new Profile(requiredFields);
       await newProfile.save();
-      return res.json({ createdProfile: newProfile });
+      return res.json({ Profile: newProfile });
     } catch (err) {
       return res.status(401).json({
         msg: "could not create and save new profile",
@@ -168,7 +181,10 @@ router.get("/", async (req, res) => {
 router.get("/user/:userId", async (req, res) => {
   const { userId } = req.params;
   try {
-    let profile = await Profile.findOne({ user: userId });
+    let profile = await Profile.findOne({ user: userId }).populate("user", [
+      "name",
+      "avatar",
+    ]);
 
     res.json({ profile: profile });
   } catch (err) {
@@ -184,8 +200,9 @@ router.get("/user/:userId", async (req, res) => {
 
 router.delete("/", checkAuth, async (req, res) => {
   try {
-    await User.findOneAndRemove({ _id: req.userData });
+    await Post.deleteMany({ user: req.userData });
     await Profile.findOneAndRemove({ user: req.userData });
+    await User.findOneAndRemove({ _id: req.userData });
 
     res.json({ msg: "user deleted!" });
   } catch (error) {
@@ -204,9 +221,9 @@ router.put(
   [
     checkAuth,
     [
-      check("title").not().isEmpty(),
-      check("company").not().isEmpty(),
-      check("from").not().isEmpty(),
+      check("title", "must fill title field").not().isEmpty(),
+      check("company", "must fill company field").not().isEmpty(),
+      check("from", "must fill the from field").not().isEmpty(),
     ],
   ],
   async (req, res) => {
@@ -215,7 +232,7 @@ router.put(
 
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      return res.status(500).json({ msg: "must fill all required fields!" });
+      return res.status(500).json({ errors: errors.array() });
     }
 
     const newExp = {
@@ -270,10 +287,10 @@ router.put(
   [
     checkAuth,
     [
-      check("school").not().isEmpty(),
-      check("degree").not().isEmpty(),
-      check("fieldofstudy").not().isEmpty(),
-      check("from").not().isEmpty(),
+      check("school", "school field must be filled").not().isEmpty(),
+      check("degree", "degree field must be filled").not().isEmpty(),
+      check("fieldofstudy", "field of study must be filled").not().isEmpty(),
+      check("from", "the from field must be filled").not().isEmpty(),
     ],
   ],
   async (req, res) => {
@@ -282,7 +299,7 @@ router.put(
 
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      return res.status(500).json({ msg: "must fill all required fields!" });
+      return res.status(500).json({ errors: errors.array() });
     }
 
     const newEdc = {
@@ -320,7 +337,7 @@ router.delete("/education/:edcId", checkAuth, async (req, res) => {
     profile.education = profile.education.filter((edc) => edc.id !== edcId);
     console.log(profile.experience);
     await profile.save();
-    res.json(profile);
+    res.json({ profile: profile });
   } catch (error) {
     return res.status(401).json({
       msg: "could delete education",
@@ -329,7 +346,7 @@ router.delete("/education/:edcId", checkAuth, async (req, res) => {
 });
 
 //   api/profile/github/:username
-//   GET user reops from github
+//   GET user repos from github
 //   access: public
 
 router.get("/github/:username", async (req, res) => {

@@ -112,6 +112,8 @@ router.delete("/:postId", checkAuth, async (req, res) => {
 router.put("/like/:Id", checkAuth, async (req, res) => {
   const { Id } = req.params;
 
+  console.log(Id);
+
   try {
     const post = await Post.findById(Id);
 
@@ -120,14 +122,14 @@ router.put("/like/:Id", checkAuth, async (req, res) => {
     );
 
     if (filteredLikes.length > 0) {
-      return res
-        .status(400)
-        .json({ msg: "post already been liked by this user!" });
+      return res.status(400).json({ msg: "post already been liked!" });
     }
 
     post.likes.unshift({ user: req.userData });
 
     await post.save();
+
+    const payload = [post.likes, Id];
 
     res.json(post.likes);
   } catch (error) {
@@ -136,7 +138,7 @@ router.put("/like/:Id", checkAuth, async (req, res) => {
 });
 
 //@route     PUT request api/posts/unlike/:Id
-//@desc      aunlike
+//@desc      unlike
 //@access    private
 
 router.put("/unlike/:Id", checkAuth, async (req, res) => {
@@ -210,16 +212,25 @@ router.delete("/comments/:postId/:commentId", checkAuth, async (req, res) => {
     const comment = post.comments.filter(
       (com) => com.id === req.params.commentId
     );
+    console.log(comment[0]);
 
     if (!comment || comment.length === 0) {
       return res.status(500).json({ msg: "no comment is found " });
     }
 
+    console.log(comment[0].user);
+    console.log(comment[0].user.toString());
+    console.log(req.userData);
     if (comment[0].user.toString() !== req.userData) {
       return res.status(401).json({ msg: "you are not allowed!!" });
     }
 
-    post.comments = post.comments.splice(comment[0], 1);
+    // post.comments.splice(comment[0], 1);
+    console.log(comment[0].id);
+    post.comments.map((com) => console.log(com.id));
+    post.comments = post.comments.filter((com) => com.id !== comment[0].id);
+
+    console.log(post.comments);
 
     await post.save();
 

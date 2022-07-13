@@ -17,6 +17,10 @@ app.use((req, res, next) => {
     "Access-Control-Allow-Headers",
     "Origin, x-auth-token, X-Requested-With, Content-Type, Accept"
   );
+  res.setHeader(
+    "Access-Control-Allow-Methods",
+    "GET,HEAD,OPTIONS,POST,PUT,DELETE"
+  );
   next();
 });
 
