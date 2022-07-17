@@ -5,8 +5,6 @@ import { likePost } from "../../reducers/post-slice";
 import { unlikePost } from "../../reducers/post-slice";
 import { useState } from "react";
 
-import { Fragment } from "react";
-
 const PostItem = (props) => {
   const curUser = useSelector((state) => state.auth.user);
   const { post } = props;

@@ -10,11 +10,14 @@ const useHttp = () => {
   const setAuthUser = useCallback(async () => {
     if (localStorage.getItem("token")) {
       try {
-        const response = await axios.get("http://localhost:5000/api/auth", {
-          headers: {
-            "x-auth-token": localStorage.getItem("token"),
-          },
-        });
+        const response = await axios.get(
+          process.env.REACT_APP_BACKEND_URL + "api/auth",
+          {
+            headers: {
+              "x-auth-token": localStorage.getItem("token"),
+            },
+          }
+        );
 
         console.log(response.data);
 

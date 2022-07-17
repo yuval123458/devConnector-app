@@ -3,24 +3,13 @@ import "./App.css";
 import Landing from "./components/layout/Landing";
 import NavBar from "./components/layout/NavBar";
 import { Route, Routes } from "react-router-dom";
-// import Login from "./components/auth/Login";
-// import Register from "./components/auth/Register";
 import Alert from "./components/layout/Alert";
 import useHttp from "./hooks/useHttp";
 import { useEffect } from "react";
-// import Dashboard from "./components/dashboard/Dashboard";
 import { useSelector } from "react-redux";
 import { Suspense } from "react";
 import LoadingSpinner from "./components/layout/LoadingSpinner";
-// import ProtectedRoute from "./components/layout/ProtectedRoute";
-// import CreateProfile from "./components/profile-forms/CreateProfile";
-// import EditProfile from "./components/profile-forms/EditProfile";
-// import AddExperience from "./components/profile-forms/AddExperience";
-// import AddEducation from "./components/profile-forms/AddEducation";
-// import Profiles from "./profiles/Profiles";
-// import Profile from "./components/profile/Profile";
-// import Posts from "./components/posts/Posts";
-// import Post from "./components/post/Post";
+import { initializeApp } from "firebase/app";
 
 const Post = React.lazy(() => import("./components/post/Post"));
 const Posts = React.lazy(() => import("./components/posts/Posts"));
@@ -44,6 +33,17 @@ const ProtectedRoute = React.lazy(() =>
 const Dashboard = React.lazy(() => import("./components/dashboard/Dashboard"));
 const Login = React.lazy(() => import("./components/auth/Login"));
 const Register = React.lazy(() => import("./components/auth/Register"));
+
+const firebaseConfig = {
+  apiKey: "AIzaSyCi7paNGaFAra0lOgM3SiWoOiDNwJJy4X4",
+  authDomain: "devconnector-yuval.firebaseapp.com",
+  projectId: "devconnector-yuval",
+  storageBucket: "devconnector-yuval.appspot.com",
+  messagingSenderId: "704180240444",
+  appId: "1:704180240444:web:e5f85cbf78242f4fc1c339",
+};
+
+const app = initializeApp(firebaseConfig);
 
 const App = () => {
   const { setAuthUser } = useHttp();

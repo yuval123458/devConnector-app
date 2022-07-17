@@ -7,7 +7,7 @@ export const createPost = createAsyncThunk(
   async (text, thunkAPI) => {
     try {
       const res = await axios.post(
-        "http://localhost:5000/api/posts",
+        process.env.REACT_APP_BACKEND_URL + "api/posts",
         { text },
         {
           headers: {
@@ -39,11 +39,14 @@ export const createPost = createAsyncThunk(
 
 export const getPosts = createAsyncThunk("getPosts", async (thunkAPI) => {
   try {
-    const res = await axios.get("http://localhost:5000/api/posts", {
-      headers: {
-        "x-auth-token": localStorage.getItem("token"),
-      },
-    });
+    const res = await axios.get(
+      process.env.REACT_APP_BACKEND_URL + "api/posts",
+      {
+        headers: {
+          "x-auth-token": localStorage.getItem("token"),
+        },
+      }
+    );
 
     console.log(res.data);
 
@@ -64,7 +67,7 @@ export const likePost = createAsyncThunk(
   async (postId, thunkAPI) => {
     try {
       const res = await axios.put(
-        `http://localhost:5000/api/posts/like/${postId}`,
+        process.env.REACT_APP_BACKEND_URL + `api/posts/like/${postId}`,
         {},
         {
           headers: {
@@ -85,8 +88,6 @@ export const likePost = createAsyncThunk(
       thunkAPI.dispatch(
         alertActions.setAlert({ msg: error.msg, alertType: "danger" })
       );
-
-      //   return thunkAPI.rejectWithValue(error);
     }
   }
 );
@@ -96,7 +97,7 @@ export const unlikePost = createAsyncThunk(
   async (postId, thunkAPI) => {
     try {
       const res = await axios.put(
-        `http://localhost:5000/api/posts/unlike/${postId}`,
+        process.env.REACT_APP_BACKEND_URL + `api/posts/unlike/${postId}`,
         {},
         {
           headers: {
@@ -117,8 +118,6 @@ export const unlikePost = createAsyncThunk(
       thunkAPI.dispatch(
         alertActions.setAlert({ msg: error.msg, alertType: "danger" })
       );
-
-      //   return thunkAPI.rejectWithValue(error);
     }
   }
 );
@@ -128,7 +127,7 @@ export const deletePost = createAsyncThunk(
   async (postId, thunkAPI) => {
     try {
       const res = await axios.delete(
-        `http://localhost:5000/api/posts/${postId}`,
+        process.env.REACT_APP_BACKEND_URL + `api/posts/${postId}`,
         {
           headers: {
             "x-auth-token": localStorage.getItem("token"),
@@ -161,11 +160,14 @@ export const deletePost = createAsyncThunk(
 
 export const getPost = createAsyncThunk("getPost", async (postId, thunkAPI) => {
   try {
-    const res = await axios.get(`http://localhost:5000/api/posts/${postId}`, {
-      headers: {
-        "x-auth-token": localStorage.getItem("token"),
-      },
-    });
+    const res = await axios.get(
+      process.env.REACT_APP_BACKEND_URL + `api/posts/${postId}`,
+      {
+        headers: {
+          "x-auth-token": localStorage.getItem("token"),
+        },
+      }
+    );
 
     console.log(res.data);
 
@@ -188,7 +190,7 @@ export const addComment = createAsyncThunk(
     try {
       console.log(data.postId);
       const res = await axios.put(
-        `http://localhost:5000/api/posts/comments/${data.postId}`,
+        process.env.REACT_APP_BACKEND_URL + `api/posts/comments/${data.postId}`,
         { text: data.comment },
         {
           headers: {
@@ -226,7 +228,8 @@ export const deleteComment = createAsyncThunk(
     try {
       console.log(body);
       const res = await axios.delete(
-        `http://localhost:5000/api/posts/comments/${body.postId}/${body.commentId}`,
+        process.env.REACT_APP_BACKEND_URL +
+          `api/posts/comments/${body.postId}/${body.commentId}`,
         {
           headers: {
             "x-auth-token": localStorage.getItem("token"),

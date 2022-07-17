@@ -14,12 +14,17 @@ const initialState = {
 export const getCurrentProfile = createAsyncThunk(
   "reducers/getCurrentProfile",
   async () => {
+    console.log(process.env.REACT_APP_BACKEND_URL);
     try {
-      const response = await axios.get("http://localhost:5000/api/profile/me", {
-        headers: {
-          "x-auth-token": localStorage.getItem("token"),
-        },
-      });
+      console.log(process.env.REACT_APP_BACKEND_URL + "api/profile/me");
+      const response = await axios.get(
+        process.env.REACT_APP_BACKEND_URL + "api/profile/me",
+        {
+          headers: {
+            "x-auth-token": localStorage.getItem("token"),
+          },
+        }
+      );
 
       return response.data;
     } catch (err) {
@@ -34,7 +39,7 @@ export const createProfile = createAsyncThunk(
   async (body, thunkAPI) => {
     try {
       const response = await axios.post(
-        "http://localhost:5000/api/profile/",
+        process.env.REACT_APP_BACKEND_URL + "api/profile/",
         body.profileForm,
         {
           headers: {
@@ -81,7 +86,7 @@ export const addExperience = createAsyncThunk(
   async (body, thunkAPI) => {
     try {
       const response = await axios.put(
-        "http://localhost:5000/api/profile/experience",
+        process.env.REACT_APP_BACKEND_URL + "api/profile/experience",
         body,
         {
           headers: {
@@ -113,7 +118,7 @@ export const addEducation = createAsyncThunk(
   async (body, thunkAPI) => {
     try {
       const response = await axios.put(
-        "http://localhost:5000/api/profile/education",
+        process.env.REACT_APP_BACKEND_URL + "api/profile/education",
         body,
         {
           headers: {
@@ -142,7 +147,7 @@ export const addEducation = createAsyncThunk(
 export const deleteEdc = createAsyncThunk("deleteEdc", async (id, thunkAPI) => {
   try {
     const response = await axios.delete(
-      `http://localhost:5000/api/profile/education/${id}`,
+      process.env.REACT_APP_BACKEND_URL + `api/profile/education/${id}`,
       {
         headers: {
           "x-auth-token": localStorage.getItem("token"),
@@ -169,7 +174,7 @@ export const deleteEdc = createAsyncThunk("deleteEdc", async (id, thunkAPI) => {
 export const deleteExp = createAsyncThunk("deleteExp", async (id, thunkAPI) => {
   try {
     const response = await axios.delete(
-      `http://localhost:5000/api/profile/experience/${id}`,
+      process.env.REACT_APP_BACKEND_URL + `api/profile/experience/${id}`,
       {
         headers: {
           "x-auth-token": localStorage.getItem("token"),
@@ -195,11 +200,14 @@ export const deleteExp = createAsyncThunk("deleteExp", async (id, thunkAPI) => {
 
 export const deleteAcc = createAsyncThunk("deleteAcc", async (thunkAPI) => {
   try {
-    const response = await axios.delete("http://localhost:5000/api/profile", {
-      headers: {
-        "x-auth-token": localStorage.getItem("token"),
-      },
-    });
+    const response = await axios.delete(
+      process.env.REACT_APP_BACKEND_URL + "api/profile",
+      {
+        headers: {
+          "x-auth-token": localStorage.getItem("token"),
+        },
+      }
+    );
 
     console.log(response.data);
 
@@ -221,7 +229,9 @@ export const getAllProfiles = createAsyncThunk(
   "getAllProfiles",
   async (thunkAPI) => {
     try {
-      const response = await axios.get("http://localhost:5000/api/profile");
+      const response = await axios.get(
+        process.env.REACT_APP_BACKEND_URL + "api/profile"
+      );
 
       console.log(response.data);
 
@@ -241,7 +251,7 @@ export const getProfileById = createAsyncThunk(
   async (userId, thunkAPI) => {
     try {
       const response = await axios.get(
-        `http://localhost:5000/api/profile/user/${userId}`
+        process.env.REACT_APP_BACKEND_URL + `api/profile/user/${userId}`
       );
 
       console.log(response.data);
@@ -262,7 +272,7 @@ export const getGithubRepos = createAsyncThunk(
   async (username, thunkAPI) => {
     try {
       const response = await axios.get(
-        `http://localhost:5000/api/profile/github/${username}`
+        process.env.REACT_APP_BACKEND_URL + `api/profile/github/${username}`
       );
 
       console.log(response.data);
@@ -285,17 +295,17 @@ const profileSlice = createSlice({
   extraReducers: {
     // GetCurrentProfile
     [getCurrentProfile.fulfilled]: (state, action) => {
-      console.log(" GET fulfilled");
+      console.log(" GetCurrentProfile fulfilled");
       state.profile = action.payload;
       state.loading = false;
       state.errors = null;
     },
     [getCurrentProfile.pending]: (state, action) => {
-      console.log("GET pending");
+      console.log("GetCurrentProfile pending");
       state.loading = true;
     },
     [getCurrentProfile.rejected]: (state, action) => {
-      console.log("GET rejected");
+      console.log("GetCurrentProfile rejected");
       state.loading = false;
       state.profile = null;
       const errs = action.payload.map((err) => err.msg);
