@@ -37,7 +37,7 @@ const Login = () => {
   const submitHandler = (e) => {
     e.preventDefault();
     sendRequest(
-      "http://localhost:5000/api/auth",
+      process.env.REACT_APP_BACKEND_URL,
       {
         email,
         password,

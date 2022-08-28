@@ -43,7 +43,7 @@ const Register = () => {
       );
     } else {
       const response = sendRequest(
-        "http://localhost:5000/api/users",
+        process.env.REACT_APP_BACKEND_URL,
         {
           name,
           email,
