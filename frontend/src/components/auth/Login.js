@@ -37,7 +37,7 @@ const Login = () => {
   const submitHandler = (e) => {
     e.preventDefault();
     sendRequest(
-      process.env.REACT_APP_BACKEND_URL,
+      process.env.REACT_APP_BACKEND_URL + "api/auth",
       {
         email,
         password,
